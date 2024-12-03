@@ -1,60 +1,133 @@
-from flask import Flask, request, send_file
+from flask import Flask, request, jsonify, send_file
+from flask_pymongo import PyMongo
+from bson import ObjectId
 from io import BytesIO
-from pdfrw import PdfReader, PdfWriter, PageMerge, PdfDict
+from reportlab.pdfgen import canvas
+from reportlab.lib.pagesizes import letter
+from PyPDF2 import PdfReader, PdfWriter, PdfMerger
 
+# Flask app
 app = Flask(__name__)
 
-@app.route('/generate-pdf', methods=['POST'])
-def generate_pdf():
+# MongoDB configuration
+app.config["MONGO_URI"] = "mongodb+srv://ramapavy:JfYoTZ25G3xZ13pi@events.j6el4.mongodb.net/events"
+mongo = PyMongo(app)
+
+# MongoDB collections
+events_collection = mongo.db.events
+
+# Route to save event data into MongoDB
+@app.route('/save-event', methods=['POST'])
+def save_event():
     try:
-        # Parse form data from the request
-        form_data = request.json
+        # Get JSON data from the request
+        event_data = request.json
 
-        # Debugging: Print received form data
-        print("Received Form Data:", form_data)
+        # Validate required fields
+        required_fields = ["association_name", "event_name"]
+        for field in required_fields:
+            if field not in event_data:
+                return jsonify({"error": f"Missing required field: {field}"}), 400
 
-        # Load the existing PDF
-        pdf_path = "KRIYA_2K24_ERM_PP[1].pdf"  # Ensure this exists
-        template_pdf = PdfReader(pdf_path)
-        output_pdf = PdfWriter()
+        # Insert event data into MongoDB
+        inserted_id = events_collection.insert_one(event_data).inserted_id
 
-        # Field Mapping (Update with your actual PDF field names)
-        field_mapping = {
-            "ASSOCIATION_NAME": form_data.get("association_name", ""),
-            "EVENT_NAME": form_data.get("event_name", ""),
-            "SECRETARY_NAME": ", ".join(form_data.get("secretary_name", [])),
-            "SECRETARY_ROLL": ", ".join(form_data.get("secretary_roll", [])),
-            "SECRETARY_MOBILE": ", ".join(form_data.get("secretary_mobile", [])),
-            "CONVENOR_NAME": ", ".join(form_data.get("convenor_name", [])),
-            "CONVENOR_ROLL": ", ".join(form_data.get("convenor_roll", [])),
-            "CONVENOR_MOBILE": ", ".join(form_data.get("convenor_mobile", [])),
-            "VOLUNTEER_NAME": ", ".join(form_data.get("volunteer_name", [])),
-            "VOLUNTEER_ROLL": ", ".join(form_data.get("volunteer_roll", [])),
-            "VOLUNTEER_MOBILE": ", ".join(form_data.get("volunteer_mobile", [])),
-        }
+        return jsonify({"message": "Event data saved successfully", "id": str(inserted_id)}), 201
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
 
-        # Fill form fields
-        for page in template_pdf.pages:
-            annotations = page.Annots
-            if annotations:
-                for annotation in annotations:
-                    field_name = annotation.T[1:-1]  # Remove parentheses around field name
-                    if field_name in field_mapping:
-                        annotation.update(PdfDict(V=field_mapping[field_name]))
+# Route to retrieve event data from MongoDB and generate a PDF
+@app.route('/generate-pdf/<event_id>', methods=['GET'])
+def generate_pdf(event_id):
+    try:
+        # Retrieve event data from MongoDB
+        event_data = events_collection.find_one({"_id": ObjectId(event_id)})
 
-            # Add page to output
-            output_pdf.addpage(page)
+        if not event_data:
+            return jsonify({"error": "Event not found"}), 404
 
-        # Save the updated PDF to memory buffer
+        # Create a buffer to hold the overlay PDF
         buffer = BytesIO()
-        output_pdf.write(buffer)
-        buffer.seek(0)
 
-        # Send the updated PDF as response
-        return send_file(buffer, as_attachment=True, download_name="filled_form.pdf", mimetype="application/pdf")
+        # Generate overlay PDF using reportlab
+        c = canvas.Canvas(buffer, pagesize=letter)
+        width, height = letter
+
+        # Add form data to the PDF dynamically
+        c.setFont("Helvetica", 12)
+        y = height - 100  # Starting Y position
+        line_height = 20
+
+        c.drawString(50, y, f"Association Name: {event_data.get('association_name', '')}")
+        y -= line_height
+        c.drawString(50, y, f"Event Name: {event_data.get('event_name', '')}")
+        y -= line_height
+
+        # Secretary details
+        c.drawString(50, y, "Secretary Details:")
+        y -= line_height
+        for name, roll, mobile in zip(
+            event_data.get("secretary_name", []),
+            event_data.get("secretary_roll", []),
+            event_data.get("secretary_mobile", []),
+        ):
+            c.drawString(70, y, f"Name: {name}, Roll: {roll}, Mobile: {mobile}")
+            y -= line_height
+
+        # Convenor details
+        c.drawString(50, y, "Convenor Details:")
+        y -= line_height
+        for name, roll, mobile in zip(
+            event_data.get("convenor_name", []),
+            event_data.get("convenor_roll", []),
+            event_data.get("convenor_mobile", []),
+        ):
+            c.drawString(70, y, f"Name: {name}, Roll: {roll}, Mobile: {mobile}")
+            y -= line_height
+
+        # Volunteer details
+        c.drawString(50, y, "Volunteer Details:")
+        y -= line_height
+        for name, roll, mobile in zip(
+            event_data.get("volunteer_name", []),
+            event_data.get("volunteer_roll", []),
+            event_data.get("volunteer_mobile", []),
+        ):
+            c.drawString(70, y, f"Name: {name}, Roll: {roll}, Mobile: {mobile}")
+            y -= line_height
+
+        c.save()
+
+        # Load the original template PDF
+        template_pdf_path = "KRIYA_2K24_ERM_PP[1].pdf"
+        original_pdf = PdfReader(template_pdf_path)
+
+        # Load the generated overlay
+        buffer.seek(0)
+        overlay_pdf = PdfReader(buffer)
+
+        # Merge the overlay onto the original template
+        writer = PdfWriter()
+        for page in original_pdf.pages:
+            overlay_page = overlay_pdf.pages[0]  # Use the first page of overlay
+            page.merge_page(overlay_page)
+            writer.add_page(page)
+
+        # Save the merged PDF to a buffer
+        output_buffer = BytesIO()
+        writer.write(output_buffer)
+        output_buffer.seek(0)
+
+        # Send the final PDF as response
+        return send_file(
+            output_buffer,
+            as_attachment=True,
+            download_name="filled_form.pdf",
+            mimetype="application/pdf",
+        )
 
     except Exception as e:
-        return {"error": str(e)}, 500
+        return jsonify({"error": str(e)}), 500
 
 if __name__ == "__main__":
     app.run(debug=True, port=5000)
