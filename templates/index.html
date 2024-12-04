@@ -1,78 +1,167 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Event Details</title>
+    <title>Event Details Form</title>
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 2rem;
-        }
-
-        h1 {
-            text-align: center;
-        }
-
         table {
             width: 100%;
             border-collapse: collapse;
-            margin-top: 20px;
+            margin-bottom: 20px; /* Space between tables */
         }
 
-        table,
-        th,
-        td {
-            border: 1px solid black;
+        th, td {
+            border: 1px solid #000;
+            padding: 12px;
+            text-align: center;
+            vertical-align: middle;
         }
 
-        th,
-        td {
-            padding: 8px;
-            text-align: left;
+        th {
+            background-color: #f2f2f2;
+        }
+
+        .add-volunteer-btn {
+            margin: 10px 0;
+            padding: 10px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            cursor: pointer;
         }
     </style>
 </head>
-
 <body>
-    <h1>{{ data.get('association_name', '') }}</h1>
-    <h2>Event: {{ data.get('event_name', '') }}</h2>
-    <h3>Secretary Details</h3>
-    <table>
-        <thead>
+    <h2>Event Details Form</h2>
+    <form id="event-form">
+        <h3>SECRETARY DETAILS:</h3>
+        <table border="1">
             <tr>
-                <th>Name</th>
-                <th>Roll Number</th>
-                <th>Mobile Number</th>
+                <th>NAME</th>
+                <th>ROLL NUMBER</th>
+                <th>MOBILE NO</th>
             </tr>
-        </thead>
-        <tbody>
             <tr>
-                <td>{{ ', '.join(data.get('secretary_name', [])) }}</td>
-                <td>{{ ', '.join(data.get('secretary_roll', [])) }}</td>
-                <td>{{ ', '.join(data.get('secretary_mobile', [])) }}</td>
+                <td><input type="text" name="secretary_name" required></td>
+                <td><input type="text" name="secretary_roll" required></td>
+                <td><input type="text" name="secretary_mobile" required></td>
             </tr>
-        </tbody>
-    </table>
+        </table>
 
-    <h3>Convenor Details</h3>
-    <table>
-        <thead>
+        <h3>CONVENOR DETAILS:</h3>
+        <table border="1">
             <tr>
-                <th>Name</th>
-                <th>Roll Number</th>
-                <th>Mobile Number</th>
+                <th>NAME</th>
+                <th>ROLL NUMBER</th>
+                <th>MOBILE NO</th>
             </tr>
-        </thead>
-        <tbody>
             <tr>
-                <td>{{ ', '.join(data.get('convenor_name', [])) }}</td>
-                <td>{{ ', '.join(data.get('convenor_roll', [])) }}</td>
-                <td>{{ ', '.join(data.get('convenor_mobile', [])) }}</td>
+                <td><input type="text" name="convenor_name" required></td>
+                <td><input type="text" name="convenor_roll" required></td>
+                <td><input type="text" name="convenor_mobile" required></td>
             </tr>
-        </tbody>
-    </table>
+        </table>
+
+        <h3>VOLUNTEER DETAILS:</h3>
+        <table id="volunteer-table" border="1">
+            <tr>
+                <th>NAME</th>
+                <th>ROLL NUMBER</th>
+                <th>MOBILE NO</th>
+            </tr>
+            <tr>
+                <td><input type="text" name="volunteer_name[]" required></td>
+                <td><input type="text" name="volunteer_roll[]" required></td>
+                <td><input type="text" name="volunteer_mobile[]" required></td>
+            </tr>
+        </table>
+
+        <button type="button" class="add-volunteer-btn" onclick="addVolunteer()">Add Another Volunteer</button>
+
+        <button type="submit">Submit</button>
+    </form>
+
+    <script>
+        // Add a new volunteer row
+        function addVolunteer() {
+            const volunteerTable = document.getElementById('volunteer-table');
+            const newRow = volunteerTable.insertRow();
+            newRow.innerHTML = `
+                <td><input type="text" name="volunteer_name[]" required></td>
+                <td><input type="text" name="volunteer_roll[]" required></td>
+                <td><input type="text" name="volunteer_mobile[]" required></td>
+            `;
+        }
+
+        document.getElementById('event-form').addEventListener('submit', async function (event) {
+            event.preventDefault(); // Prevent form's default submission
+
+            // Gather form data
+            const formData = {
+                association_name: "Tech Club", // Replace with actual dynamic input if needed
+                event_name: "AI Workshop",    // Replace with actual dynamic input
+                secretary: {
+                    name: document.querySelector('input[name="secretary_name"]').value,
+                    roll: document.querySelector('input[name="secretary_roll"]').value,
+                    mobile: document.querySelector('input[name="secretary_mobile"]').value,
+                },
+                convenors: {
+                    name: document.querySelector('input[name="convenor_name"]').value,
+                    roll: document.querySelector('input[name="convenor_roll"]').value,
+                    mobile: document.querySelector('input[name="convenor_mobile"]').value,
+                },
+                volunteers: []
+            };
+
+            // Gather volunteers data
+            const volunteerNames = document.querySelectorAll('input[name="volunteer_name[]"]');
+            const volunteerRolls = document.querySelectorAll('input[name="volunteer_roll[]"]');
+            const volunteerMobiles = document.querySelectorAll('input[name="volunteer_mobile[]"]');
+
+            for (let i = 0; i < volunteerNames.length; i++) {
+                formData.volunteers.push({
+                    name: volunteerNames[i].value,
+                    roll: volunteerRolls[i].value,
+                    mobile: volunteerMobiles[i].value,
+                });
+            }
+
+            try {
+                // Send data to /save-event
+                const response = await fetch('http://localhost:5000/save-event', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(formData),
+                });
+
+                if (!response.ok) {
+                    throw new Error(`Server error: ${response.status}`);
+                }
+
+                const { eventID } = await response.json();
+
+                // Generate PDF
+                const pdfResponse = await fetch(`http://localhost:5000/generate-pdf/${eventID}`, {
+                    method: 'GET',
+                });
+
+                if (!pdfResponse.ok) {
+                    throw new Error(`PDF generation error: ${pdfResponse.status}`);
+                }
+
+                const blob = await pdfResponse.blob();
+                const link = document.createElement('a');
+                link.href = URL.createObjectURL(blob);
+                link.download = 'event_details.pdf';
+                link.click();
+
+                alert('Form submitted and PDF generated!');
+            } catch (error) {
+                console.error('Error submitting form:', error);
+                alert('Failed to submit the form or generate the PDF.');
+            }
+        });
+    </script>
 </body>
-
 </html>

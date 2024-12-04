@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Event Details</title>
+    <style>
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 8px 0;
+        }
+
+        th, td {
+            border: 1px solid #000;
+            padding: 10px;
+            text-align: center; /* Horizontal alignment */
+            vertical-align: middle; /* Vertical alignment */
+        }
+
+        th {
+            background-color: #f2f2f2;
+        }
+        h3{
+            margin-top: 16px;
+        }
+
+        
+    </style>
+</head>
+<body>
+    <h2>Event Details: {{ data.event_name }}</h2>
+    <p><strong>Association Name:</strong> {{ data.association_name }}</p>
+
+    <h3>Secretary Details:</h3>
+    <table>
+        <tr>
+            <th>NAME</th>
+            <th>ROLL NUMBER</th>
+            <th>MOBILE NO</th>
+        </tr>
+        <tr>
+            <td>{{ data.secretary.name }}</td>
+            <td>{{ data.secretary.roll }}</td>
+            <td>{{ data.secretary.mobile }}</td>
+        </tr>
+    </table>
+
+    <h3>Convenor Details:</h3>
+    <table>
+        <tr>
+            <th>NAME</th>
+            <th>ROLL NUMBER</th>
+            <th>MOBILE NO</th>
+        </tr>
+        
+        <tr>
+            <td>{{ data.convenors.name }}</td>
+            <td>{{ data.convenors.roll }}</td>
+            <td>{{ data.convenors.mobile }}</td>
+        </tr>
+    </table>
+
+    <h3>Volunteer Details:</h3>
+    <table>
+        <tr>
+            <th>NAME</th>
+            <th>ROLL NUMBER</th>
+            <th>MOBILE NO</th>
+        </tr>
+        {% for volunteer in data.volunteers %}
+        <tr>
+            <td>{{ volunteer.name }}</td>
+            <td>{{ volunteer.roll }}</td>
+            <td>{{ volunteer.mobile }}</td>
+        </tr>
+        {% endfor %}
+    </table>
+</body>
+</html>

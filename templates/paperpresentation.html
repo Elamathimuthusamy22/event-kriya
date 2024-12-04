@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Event Details Form</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            width: 8.5in; /* Standard US Letter width */
+            height: 11in; /* Standard US Letter height */
+            box-sizing: border-box;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        td, th {
+            border: 1px solid #000;
+            padding: 8px;
+            text-align: left;
+        }
+        .checkbox-group {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+        .signature-section {
+            margin-top: 20px;
+            display: flex;
+            justify-content: space-between;
+        }
+        textarea, input[type="text"], input[type="number"] {
+            box-sizing: border-box;
+            font-family: inherit;
+        }
+        textarea {
+            resize: none;
+        }
+        form {
+            padding: 20px;
+        }
+    </style>
+</head>
+<body>
+    <form>
+        <table>
+            <tr>
+                <td colspan="3">
+                    <div class="checkbox-group">
+                        <label><input type="checkbox" name="day" value="day2"> Day 2</label>
+                        <label><input type="checkbox" name="day" value="day3"> Day 3</label>
+                        <label><input type="checkbox" name="day" value="bothDays"> Both Days</label>
+                    </div>
+                </td>
+            </tr>
+            <tr>
+                <td colspan="3">
+                    <label>Expected No. of Participants:</label>
+                    <input type="text" name="participants" style="width: 100%;">
+                </td>
+            </tr>
+            <tr>
+                <td colspan="3">
+                    <label>Team Size:</label>
+                    Min: <input type="number" name="teamSizeMin" style="width: 50px;">
+                    Max: <input type="number" name="teamSizeMax" style="width: 50px;">
+                </td>
+            </tr>
+            <tr>
+                <td colspan="3">
+                    <label>Number of Halls/Labs Required:</label>
+                    <input type="number" name="hallsRequired" style="width: 50px;">
+                    <br>
+                    <textarea name="hallReason" placeholder="Reason if more than one hall is required..." rows="3" style="width: 100%;"></textarea>
+                </td>
+            </tr>
+            <tr>
+                <td colspan="3">
+                    <label>Halls/Labs Preferred:</label>
+                    <br>
+                    <textarea name="hallsPreferred" placeholder="Reason for preference..." rows="3" style="width: 100%;"></textarea>
+                </td>
+            </tr>
+            <tr>
+                <td colspan="3">
+                    <label>Duration of the Event in Hours:</label>
+                    <br>
+                    <label><input type="radio" name="duration" value="slot1"> Slot 1: 9:30 to 12:30</label>
+                    <label><input type="radio" name="duration" value="slot2"> Slot 2: 1:30 to 4:30</label>
+                    <label><input type="radio" name="duration" value="fullDay"> Full Day</label>
+                </td>
+            </tr>
+            <tr>
+                <td colspan="3">
+                    <label>Number Required:</label>
+                    <input type="number" name="numberRequired" style="width: 50px;">
+                    <br>
+                    <textarea name="numberReason" placeholder="Justify the reason..." rows="3" style="width: 100%;"></textarea>
+                </td>
+            </tr>
+            <tr>
+                <td colspan="3">
+                    <label>Extension Box:</label>
+                    <input type="text" name="extensionBox" style="width: 100%;">
+                </td>
+            </tr>
+        </table>
+        <div class="signature-section">
+            <div>
+                Signature of the Secretary:
+                <input type="text" name="secretarySignature" style="width: 200px;">
+            </div>
+            <div>
+                Signature of the Faculty Advisor:
+                <input type="text" name="facultySignature" style="width: 200px;">
+            </div>
+        </div>
+    </form>
+</body>
+</html>

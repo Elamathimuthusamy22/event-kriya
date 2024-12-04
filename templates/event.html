@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Event Details</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            line-height: 1.6;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .header h1 {
+            margin: 0;
+        }
+
+        .subheader {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .section-title {
+            margin-top: 30px;
+            font-size: 1.2rem;
+            font-weight: bold;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+
+        table,
+        th,
+        td {
+            border: 1px solid black;
+        }
+
+        th,
+        td {
+            padding: 8px;
+            text-align: left;
+        }
+
+        .signature-section {
+            margin-top: 30px;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .signature {
+            text-align: center;
+            flex: 1;
+            margin: 0 10px;
+        }
+
+        .instructions {
+            margin-top: 20px;
+            border: 1px solid black;
+            padding: 15px;
+            background-color: #f9f9f9;
+        }
+
+        .footer {
+            text-align: center;
+            margin-top: 30px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="header">
+        <h1>PSG COLLEGE OF TECHNOLOGY</h1>
+        <h2>STUDENTS UNION 2023-24</h2>
+        <h3>KRIYA 2K24 - EVENT RESOURCE FORM</h3>
+        <h4>PAPER PRESENTATION</h4>
+    </div>
+
+    <div class="subheader">
+        <p><strong>Association Name:</strong> {{ data.get('association_name', '') }}</p>
+        <p><strong>Event Name:</strong> {{ data.get('event_name', '') }}</p>
+    </div>
+
+    <div class="section-title">Secretary Details</div>
+    <table>
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Roll Number</th>
+                <th>Mobile Number</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>{{ ', '.join(data.get('secretary_name', [])) }}</td>
+                <td>{{ ', '.join(data.get('secretary_roll', [])) }}</td>
+                <td>{{ ', '.join(data.get('secretary_mobile', [])) }}</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <div class="section-title">Convenor and Volunteer Details</div>
+    <table>
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Roll Number</th>
+                <th>Mobile Number</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>{{ ', '.join(data.get('convenor_name', [])) }}</td>
+                <td>{{ ', '.join(data.get('convenor_roll', [])) }}</td>
+                <td>{{ ', '.join(data.get('convenor_mobile', [])) }}</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <div class="signature-section">
+        <div class="signature">
+            <p>Signature of the Secretary</p>
+        </div>
+        <div class="signature">
+            <p>Signature of the Faculty Advisor</p>
+        </div>
+    </div>
+
+    <div class="instructions">
+        <h4>Instructions:</h4>
+        <p>* If two different events are to be conducted, fill the form for each event separately.</p>
+        <p>** If the same event continues on both days, include details in the same form.</p>
+        <ul>
+            <li>Judges must be present throughout the event.</li>
+            <li>Winner details must be submitted within one hour of event completion.</li>
+            <li>No cash prizes to be awarded by associations.</li>
+        </ul>
+    </div>
+
+    <div class="footer">
+        <p>For more details, contact your respective point of contact.</p>
+    </div>
+</body>
+
+</html>
