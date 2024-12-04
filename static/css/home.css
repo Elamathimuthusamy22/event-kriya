@@ -1,10 +1,12 @@
 /* General Body Styles */
-html, body {
+html,
+body {
     margin: 0;
     padding: 0;
     font-family: Arial, sans-serif;
     background-color: #f0f4f8;
-    height: 100%; /* Ensures the body and HTML occupy full viewport height */
+    height: 100%;
+    /* Ensures the body and HTML occupy full viewport height */
     display: flex;
     flex-direction: column;
     box-sizing: border-box;
@@ -15,7 +17,8 @@ html, body {
     display: flex;
     flex-direction: column;
     width: 100%;
-    height: 100%; /* Make container take full height */
+    height: 100%;
+    /* Make container take full height */
 }
 
 /* Header Section */
@@ -31,17 +34,21 @@ html, body {
 }
 
 .page-header .kriya-logo img {
-    max-width: 120px; /* Adjust size as needed */
+    max-width: 120px;
+    /* Adjust size as needed */
     height: auto;
 }
-.page-header .logo img{
-    max-width: 230px; /* Adjust size as needed */
+
+.page-header .logo img {
+    max-width: 230px;
+    /* Adjust size as needed */
     height: auto;
 }
 
 /* Footer Section */
 .page-footer {
-    background-color: #5d5d5d; /* Distinct light gray color */
+    background-color: #5d5d5d;
+    /* Distinct light gray color */
     color: rgb(255, 254, 254);
     padding: 0px;
     text-align: center;
@@ -54,7 +61,8 @@ html, body {
 
 /* Main Section */
 main {
-    flex: 1; /* Occupies remaining space between header and footer */
+    flex: 1;
+    /* Occupies remaining space between header and footer */
     display: flex;
     justify-content: center;
     align-items: center;
@@ -85,7 +93,8 @@ main {
 }
 
 .login-button {
-    background-color:black; /* Mild blue color */
+    background-color: black;
+    /* Mild blue color */
     color: white;
     padding: 10px 20px;
     border: none;
@@ -98,17 +107,20 @@ main {
 /* Cards Section */
 .cards-container {
     display: flex;
-    justify-content: space-around; /* Spreads cards evenly */
+    justify-content: space-around;
+    /* Spreads cards evenly */
     align-items: center;
     gap: 20px;
     width: 100%;
-    max-width: 1200px; /* Optional: Control container width */
+    max-width: 1200px;
+    /* Optional: Control container width */
     padding: 20px;
     box-sizing: border-box;
 }
 
 .card {
-    background-color: #ffe5ec; /* Default pastel color */
+    background-color: #ffe5ec;
+    /* Default pastel color */
     border: 1px solid #ddd;
     border-radius: 15px;
     width: 300px;
@@ -121,15 +133,18 @@ main {
 }
 
 .card:nth-child(1) {
-    background-color: #f9edc2; /* Pastel yellow for "Event" */
+    background-color: #f9edc2;
+    /* Pastel yellow for "Event" */
 }
 
 .card:nth-child(2) {
-    background-color: #d4f4dd; /* Pastel green for "Presentation" */
+    background-color: #d4f4dd;
+    /* Pastel green for "Presentation" */
 }
 
 .card:nth-child(3) {
-    background-color: #e6eaff; /* Pastel blue for "Workshops" */
+    background-color: #e6eaff;
+    /* Pastel blue for "Workshops" */
 }
 
 .card h3 {
@@ -142,5 +157,6 @@ main {
 .card:hover {
     transform: translateY(-10px);
     box-shadow: 0 10px 15px rgba(0, 0, 0, 0.2);
-    background-color: #fdfdfd; /* Slightly lighter color on hover */
+    background-color: #fdfdfd;
+    /* Slightly lighter color on hover */
 }

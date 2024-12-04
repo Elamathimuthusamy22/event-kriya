@@ -1,7 +1,7 @@
 import requests
 import json
 
-BASE_URL = "http://localhost:5000"
+BASE_URL = "http://localhost:9000"  # Replace with your server's base URL
 
 # Test data for event
 event_data = {
@@ -34,9 +34,16 @@ event_data = {
 # Save event and generate PDF
 def save_event():
     url = f"{BASE_URL}/save-event"
-    response = requests.post(url, json=event_data)
-    response.raise_for_status()
-    return response.json()['eventID']
+    try:
+        response = requests.post(url, json=event_data)
+        response.raise_for_status()
+        data = response.json()
+        print("Event saved successfully:")
+        print(json.dumps(data, indent=4))
+        return data.get("id")  # Return the event ID
+    except requests.exceptions.RequestException as e:
+        print(f"Error saving event: {e}")
+        return None
 
 def generate_pdf(event_id):
     url = f"{BASE_URL}/generate-pdf/{event_id}"
