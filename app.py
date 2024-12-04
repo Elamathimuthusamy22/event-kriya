@@ -1,10 +1,8 @@
-from flask import Flask, request, jsonify, send_file
+from flask import Flask, render_template, request, send_file, jsonify
 from flask_pymongo import PyMongo
 from bson import ObjectId
+from xhtml2pdf import pisa
 from io import BytesIO
-from reportlab.pdfgen import canvas
-from reportlab.lib.pagesizes import letter
-from PyPDF2 import PdfReader, PdfWriter, PdfMerger
 
 # Flask app
 app = Flask(__name__)
@@ -40,93 +38,30 @@ def save_event():
 @app.route('/generate-pdf/<event_id>', methods=['GET'])
 def generate_pdf(event_id):
     try:
-        # Retrieve event data from MongoDB
+        # Fetch event data from MongoDB
         event_data = events_collection.find_one({"_id": ObjectId(event_id)})
+        print("Event data:", event_data)
 
         if not event_data:
             return jsonify({"error": "Event not found"}), 404
+        
+        # Render HTML
+        rendered_html = render_template('index.html', data=event_data)
 
-        # Create a buffer to hold the overlay PDF
-        buffer = BytesIO()
+        print("Rendered HTML: done")
+        # Convert HTML to PDF
+        pdf_buffer = BytesIO()
+        pisa_status = pisa.CreatePDF(BytesIO(rendered_html.encode('utf-8')), pdf_buffer)
+        pdf_buffer.seek(0)
+        print("PDF conversion: done")
 
-        # Generate overlay PDF using reportlab
-        c = canvas.Canvas(buffer, pagesize=letter)
-        width, height = letter
+        if pisa_status.err:
+            return jsonify({"error": "Failed to generate PDF"}), 500
 
-        # Add form data to the PDF dynamically
-        c.setFont("Helvetica", 12)
-        y = height - 100  # Starting Y position
-        line_height = 20
-
-        c.drawString(50, y, f"Association Name: {event_data.get('association_name', '')}")
-        y -= line_height
-        c.drawString(50, y, f"Event Name: {event_data.get('event_name', '')}")
-        y -= line_height
-
-        # Secretary details
-        c.drawString(50, y, "Secretary Details:")
-        y -= line_height
-        for name, roll, mobile in zip(
-            event_data.get("secretary_name", []),
-            event_data.get("secretary_roll", []),
-            event_data.get("secretary_mobile", []),
-        ):
-            c.drawString(70, y, f"Name: {name}, Roll: {roll}, Mobile: {mobile}")
-            y -= line_height
-
-        # Convenor details
-        c.drawString(50, y, "Convenor Details:")
-        y -= line_height
-        for name, roll, mobile in zip(
-            event_data.get("convenor_name", []),
-            event_data.get("convenor_roll", []),
-            event_data.get("convenor_mobile", []),
-        ):
-            c.drawString(70, y, f"Name: {name}, Roll: {roll}, Mobile: {mobile}")
-            y -= line_height
-
-        # Volunteer details
-        c.drawString(50, y, "Volunteer Details:")
-        y -= line_height
-        for name, roll, mobile in zip(
-            event_data.get("volunteer_name", []),
-            event_data.get("volunteer_roll", []),
-            event_data.get("volunteer_mobile", []),
-        ):
-            c.drawString(70, y, f"Name: {name}, Roll: {roll}, Mobile: {mobile}")
-            y -= line_height
-
-        c.save()
-
-        # Load the original template PDF
-        template_pdf_path = "KRIYA_2K24_ERM_PP[1].pdf"
-        original_pdf = PdfReader(template_pdf_path)
-
-        # Load the generated overlay
-        buffer.seek(0)
-        overlay_pdf = PdfReader(buffer)
-
-        # Merge the overlay onto the original template
-        writer = PdfWriter()
-        for page in original_pdf.pages:
-            overlay_page = overlay_pdf.pages[0]  # Use the first page of overlay
-            page.merge_page(overlay_page)
-            writer.add_page(page)
-
-        # Save the merged PDF to a buffer
-        output_buffer = BytesIO()
-        writer.write(output_buffer)
-        output_buffer.seek(0)
-
-        # Send the final PDF as response
-        return send_file(
-            output_buffer,
-            as_attachment=True,
-            download_name="filled_form.pdf",
-            mimetype="application/pdf",
-        )
-
+        # Send the PDF as response
+        return send_file(pdf_buffer, as_attachment=True, download_name="event_details.pdf", mimetype="application/pdf")
     except Exception as e:
+        print("Error generating test PDF:", str(e))
         return jsonify({"error": str(e)}), 500
 
 if __name__ == "__main__":

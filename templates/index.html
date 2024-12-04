@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Event Details</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 2rem;
+        }
+
+        h1 {
+            text-align: center;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        table,
+        th,
+        td {
+            border: 1px solid black;
+        }
+
+        th,
+        td {
+            padding: 8px;
+            text-align: left;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>{{ data.get('association_name', '') }}</h1>
+    <h2>Event: {{ data.get('event_name', '') }}</h2>
+    <h3>Secretary Details</h3>
+    <table>
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Roll Number</th>
+                <th>Mobile Number</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>{{ ', '.join(data.get('secretary_name', [])) }}</td>
+                <td>{{ ', '.join(data.get('secretary_roll', [])) }}</td>
+                <td>{{ ', '.join(data.get('secretary_mobile', [])) }}</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <h3>Convenor Details</h3>
+    <table>
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Roll Number</th>
+                <th>Mobile Number</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>{{ ', '.join(data.get('convenor_name', [])) }}</td>
+                <td>{{ ', '.join(data.get('convenor_roll', [])) }}</td>
+                <td>{{ ', '.join(data.get('convenor_mobile', [])) }}</td>
+            </tr>
+        </tbody>
+    </table>
+</body>
+
+</html>
